@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const sequilize = require('./util/database')
 const Product = require('./models/product')
 const User = require('./models/user')
+const Cart = require('./models/cart')
+const CartItem = require('./models/cart-item')
 
 const errorController = require('./controllers/error');
 
@@ -21,10 +23,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  User.findByPk(8).then(user => {
+  User.findByPk(1).then(user => {
     req.user = user
     console.log(req.user);
-    
+
     next()
   }).catch(err => {
     console.log(err);
@@ -40,13 +42,17 @@ app.use(errorController.get404);
 // Create associations
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' })
 User.hasMany(Product)
+User.hasOne(Cart)
+Cart.hasMany(CartItem)
+Cart.belongsToMany(Product, { through: CartItem })
+Product.belongsToMany(Cart, { through: CartItem })
 
 // Sync database
 sequilize
-  // .sync({ force: true })
-  .sync()
+  .sync({ force: true })
+  // .sync()
   .then(result => {
-    return User.findByPk(8)
+    return User.findByPk(1)
   })
   .then(user => {
     if (!user) {
