@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const sequilize = require('./util/database')
+const Product = require('./models/product')
+const User = require('./models/user')
 
 const errorController = require('./controllers/error');
 
@@ -24,8 +26,13 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 
+// Create associations
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' })
+User.hasMany(Product)
+
 // Sync database
-sequilize.sync()
+sequilize
+  .sync({ force: true })
   .then(result => {
     app.listen(3000);
   })
