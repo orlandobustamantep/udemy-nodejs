@@ -13,16 +13,15 @@ exports.postAddProduct = (req, res, next) => {
   const imgUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  Product.create({
+  req.user.createProduct({
     title,
     price,
     imgUrl,
     description
+  }).then(result => {
+    console.log("created product")
+    res.redirect('/admin/products')
   })
-    .then(result => {
-      console.log("created product")
-      res.redirect('/admin/products')
-    })
     .catch(err => console.log(err))
 
 };
@@ -57,6 +56,7 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
 
+
   Product.findByPk(prodId)
     .then(product => {
       return product.update({
@@ -76,7 +76,8 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  req.user
+    .getProducts()
     .then(products => {
       res.render('admin/products', {
         prods: products,

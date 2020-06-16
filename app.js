@@ -20,6 +20,17 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  User.findByPk(8).then(user => {
+    req.user = user
+    console.log(req.user);
+    
+    next()
+  }).catch(err => {
+    console.log(err);
+  })
+})
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
@@ -32,9 +43,20 @@ User.hasMany(Product)
 
 // Sync database
 sequilize
-  .sync({ force: true })
+  // .sync({ force: true })
+  .sync()
   .then(result => {
+    return User.findByPk(8)
+  })
+  .then(user => {
+    if (!user) {
+      return User.create({ name: 'Max', username: 'test@test.com' })
+    }
+    return user
+  })
+  .then(user => {
     app.listen(3000);
+    // console.log(user);
   })
   .catch(err => {
     console.log(err);
