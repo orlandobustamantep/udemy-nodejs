@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
   User.findByPk(1).then(user => {
     req.user = user
-    console.log(req.user);
+    // console.log(req.user);
 
     next()
   }).catch(err => {
@@ -49,8 +49,8 @@ Product.belongsToMany(Cart, { through: CartItem })
 
 // Sync database
 sequilize
-  .sync({ force: true })
-  // .sync()
+  // .sync({ force: true })
+  .sync()
   .then(result => {
     return User.findByPk(1)
   })
@@ -61,8 +61,12 @@ sequilize
     return user
   })
   .then(user => {
-    app.listen(3000);
+    return user.createCart();
     // console.log(user);
+  })
+  .then(cart => {
+    app.listen(3000);
+
   })
   .catch(err => {
     console.log(err);
