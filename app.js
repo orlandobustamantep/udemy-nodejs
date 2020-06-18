@@ -61,8 +61,13 @@ sequilize
     return user
   })
   .then(user => {
-    return user.createCart();
-    // console.log(user);
+
+    user.getCart()
+      .then(cart => {
+        if (!cart) {
+          return user.createCart();
+        }
+      })
   })
   .then(cart => {
     app.listen(3000);
